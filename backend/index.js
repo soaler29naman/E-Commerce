@@ -6,16 +6,20 @@ const app = express();
 const mongoose =require('mongoose');
 const jwt= require('jsonwebtoken');
 const multer = require('multer');
-const path= require('path');
 const cors = require('cors');
+require('dotenv').config();
+
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
+const path = require("path");
 
 // Configure Cloudinary
-const cloudinary = require("cloudinary").v2;
 cloudinary.config({
-    cloud_name: process.env.CLOUDNAME,
-    api_key: process.env.CLOUDAPIKEY,
-    api_secret: process.env.CLOUDINARYSECRET,
+    cloud_name:process.env.CLOUDNAME,
+    api_key:process.env.CLOUDAPIKEY,
+    api_secret:process.env.CLOUDINARYSECRET,
   });
+
 
 app.use(express.json());
 app.use(cors());
@@ -28,24 +32,46 @@ app.get("/",(req,res)=>{
     res.send("Express App is running")
 })
 
-//Image Storage Engine
+// Image Storage Engine
+const storage = multer.diskStorage({});
 
-const storage = multer.diskStorage({
-    destination: './upload/images',
-    filename:(req,file,cb)=>{
-        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 1000000,
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.originalname.match(/\.(jpeg|jpg|png)$/)) {
+      return cb(new Error("Only upload files with jpg, jpeg, png format."));
     }
-})
+    cb(null, true);
+  },
+});
 
-const upload = multer({storage:storage})
+// const storage = multer.diskStorage({
+//     destination: './upload/images',
+//     filename:(req,file,cb)=>{
+//         return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`)
+//     }
+// })
+// const upload = multer({storage:storage})
 
-//Creating upload endpoint for images
-app.use('/images',express.static('upload/images'))
+app.post("/upload",upload.single('product'),async (req,res)=>{
 
-app.post("/upload",upload.single('product'),(req,res)=>{
+
+    const {path} = req.file
+
+
+
+    const result = await cloudinary.uploader.upload(path, {
+        folder: "shop_images", // Optional folder in Cloudinary to store the images
+      });
+
+
+
     res.json({
         success:1,
-        image_url:`https://ecommerce-backend-cdi7.onrender.com/images/${req.file.filename}`
+        image_url:result.secure_url,
     })
 })
 //Schema for Creating Products
