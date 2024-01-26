@@ -17,7 +17,7 @@ const LoginSignup = () => {
 
     console.log("Login Function Executed",formData);
     let responseData;
-    await fetch('http://localhost:4000/login', {
+    await fetch('https://ecommerce-backend-cdi7.onrender.com/login', {
         method: 'POST',
         headers: {
             Accept: 'application/json',  // Corrected header
@@ -40,7 +40,7 @@ const LoginSignup = () => {
   const signup = async () => {
     console.log("Signup Function Executed", formData);
     let responseData;
-    await fetch('http://localhost:4000/signup', {
+    await fetch('https://ecommerce-backend-cdi7.onrender.com/signup', {
         method: 'POST',
         headers: {
             Accept: 'application/json',  // Corrected header
