@@ -9,6 +9,13 @@ const multer = require('multer');
 const path= require('path');
 const cors = require('cors');
 
+// Configure Cloudinary
+const cloudinary = require("cloudinary").v2;
+cloudinary.config({
+    cloud_name: process.env.CLOUDNAME,
+    api_key: process.env.CLOUDAPIKEY,
+    api_secret: process.env.CLOUDINARYSECRET,
+  });
 
 app.use(express.json());
 app.use(cors());
